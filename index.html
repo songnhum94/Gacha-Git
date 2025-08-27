@@ -32,15 +32,16 @@
 </head>
 <body class="w-screen h-screen">
 
-    <div id="ui-container" class="relative w-full h-full flex flex-col md:grid md:grid-cols-[400px_1fr] p-4 md:p-8 gap-4">
+    <!-- Container หลัก กลับมาใช้ Grid สำหรับ Desktop -->
+    <div id="ui-container" class="relative w-full h-full flex flex-col md:grid md:grid-cols-[400px_1fr] p-4 md:p-8 gap-8">
         
-        <!-- Left Panel -->
-        <div class="w-full h-full flex-shrink-0 flex flex-col gap-4 overflow-y-auto custom-scrollbar md:max-h-full">
+        <!-- Panel ซ้าย (Scrollable) -->
+        <div class="w-full h-full flex-shrink-0 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
             <div class="glass-panel rounded-xl p-6 text-center flex-shrink-0 relative">
                 <a href="https://flashmoon.io/" target="_blank" class="absolute top-3 left-4 btn btn-liquid text-xs px-3 py-1 rounded-md opacity-80 hover:opacity-100">
                     &lt; Back to Home
                 </a>
-                <h1 class="text-3xl font-bold text-white mt-4">FlashMoon Gacha</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-white mt-4">FlashMoon Gacha</h1>
                 <p class="text-lg font-modern neon-golden mt-2">NFT Gacha</p>
             </div>
 
@@ -75,13 +76,19 @@
                          <p class="text-center font-semibold">Gachapon machine</p>
                          <div id="machine-buttons" class="grid grid-cols-2 gap-2"></div>
                     </div>
+
+                    <!-- Container สำหรับ Canvas บนมือถือ (จะแสดงเฉพาะจอมือถือ) -->
+                    <div id="mobile-canvas-wrapper" class="relative w-full h-80 rounded-xl overflow-hidden my-4 md:hidden">
+                         <!-- JS จะย้าย Canvas มาไว้ที่นี่เมื่อเป็นจอมือถือ -->
+                    </div>
+
                     <div id="action-section" class="glass-panel rounded-xl p-6 flex flex-col gap-3 text-center">
                         <p id="action-message" class="text-sm">ต้องอนุญาตให้ใช้ Moon Stone ก่อน</p>
                         <button id="action-btn" class="btn btn-liquid w-full py-2 rounded-lg font-bold">Approve Usage</button>
                     </div>
                     <div class="glass-panel rounded-xl p-6 flex flex-col gap-3">
                         <div id="gacha-buttons">
-                            <button id="gacha-button" class="btn btn-liquid w-full py-3 rounded-lg font-bold text-lg font-modern" disabled>START RANDOM</button>
+                            <button id="gacha-button" class="btn btn-liquid w-full py-3 rounded-lg font-bold text-base md:text-lg font-modern" disabled>START RANDOM</button>
                         </div>
                     </div>
                 </div>
@@ -91,7 +98,7 @@
                 </div>
                 <div class="glass-panel rounded-xl p-4 flex-shrink-0">
                     <h3 id="all-items-title" class="font-bold text-center mb-2"></h3>
-                    <div id="all-items-grid" class="grid grid-cols-4 gap-2"></div>
+                    <div id="all-items-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
                 </div>
             </div>
 
@@ -113,10 +120,12 @@
             </div>
         </div>
 
-        <!-- Center Canvas -->
-        <div id="canvas-container" class="relative w-full h-full rounded-xl overflow-hidden min-h-[300px] md:min-h-0">
-             <canvas id="gacha-canvas"></canvas>
+        <!-- Panel ขวา (Desktop Canvas Container) -->
+        <div id="desktop-canvas-wrapper" class="hidden md:block relative w-full h-full rounded-xl overflow-hidden">
+            <!-- Canvas หลักจะถูกสร้างที่นี่โดย JS -->
+            <canvas id="gacha-canvas"></canvas>
         </div>
+
     </div>
 
     <!-- Result Modal -->
