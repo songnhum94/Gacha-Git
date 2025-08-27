@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เดโมเว็บสุ่มกาชาปอง 3D</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/"
+        }
+    }
+    </script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="w-screen h-screen">
+
+    <div id="ui-container" class="relative w-full h-full flex flex-col md:grid md:grid-cols-[400px_1fr] p-4 md:p-8 gap-4">
+        
+        <!-- Left Panel: Controls, Info, Inventory, History -->
+        <div class="w-full h-full flex-shrink-0 flex flex-col gap-4 overflow-y-auto custom-scrollbar md:max-h-full">
+            <div class="glass-panel rounded-xl p-6 text-center flex-shrink-0 relative">
+                <a href="https://flashmoon.io/" target="_blank" class="absolute top-3 left-4 btn btn-liquid text-xs px-3 py-1 rounded-md opacity-80 hover:opacity-100">
+                    &lt; Back to Home
+                </a>
+                <h1 class="text-3xl font-bold text-white mt-4">FlashMoon Gacha</h1>
+                <p class="text-lg font-modern neon-golden mt-2">NFT Gacha</p>
+            </div>
+
+            <!-- Wallet Section -->
+            <div id="wallet-section" class="glass-panel rounded-xl p-6 flex flex-col items-center gap-4 flex-shrink-0">
+                <div id="connect-wallet-view">
+                    <p class="mb-4 text-center">กรุณาเชื่อมต่อ Wallet เพื่อเริ่มสุ่ม</p>
+                    <button id="connect-wallet-btn" class="btn btn-neon w-full py-3 rounded-lg font-bold">🔗 Connect wallet</button>
+                </div>
+                <div id="connected-view" class="hidden w-full text-center">
+                    <p class="text-sm text-gray-400">Wallet Address:</p>
+                    <p id="wallet-address" class="text-xs bg-black/20 p-2 rounded-md break-all"></p>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="glass-panel rounded-xl p-2 flex items-center justify-center gap-2">
+                <button id="show-gacha-btn" class="btn btn-active-tab px-4 py-2 rounded-lg font-semibold flex-1 text-sm">RANDOM</button>
+                <button id="show-inventory-btn" class="btn btn-liquid bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold flex-1 text-sm">INVENTORY</button>
+                <button id="show-history-btn" class="btn btn-liquid bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold flex-1 text-sm">HISTORY</button>
+            </div>
+
+            <!-- Gacha Panel -->
+            <div id="gacha-panel" class="flex flex-col gap-4">
+                <div id="gacha-main-controls" class="flex-col gap-4 hidden flex-shrink-0">
+                    <div class="glass-panel rounded-xl p-6 flex flex-col gap-3">
+                         <p class="text-center font-semibold">Gachapon machine</p>
+                         <div id="machine-buttons" class="grid grid-cols-2 gap-2"></div>
+                    </div>
+                    <div class="glass-panel rounded-xl p-6 flex flex-col gap-3">
+                        <p class="text-center font-semibold font-modern">START RANDOM</p>
+                        <div id="gacha-buttons" class="grid grid-cols-3 gap-3">
+                            <button data-amount="1" class="btn btn-liquid w-full py-3 rounded-lg font-bold text-lg">x 1</button>
+                            <button data-amount="5" class="btn btn-liquid w-full py-3 rounded-lg font-bold text-lg">x 5</button>
+                            <button data-amount="10" class="btn btn-liquid w-full py-3 rounded-lg font-bold text-lg">x 10</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-panel rounded-xl p-4 flex-shrink-0">
+                    <h3 id="drop-rates-title" class="font-bold text-center mb-2"></h3>
+                    <ul id="drop-rates-list" class="text-xs space-y-1"></ul>
+                </div>
+                <div class="glass-panel rounded-xl p-4 flex-shrink-0">
+                    <h3 id="all-items-title" class="font-bold text-center mb-2"></h3>
+                    <div id="all-items-grid" class="grid grid-cols-4 gap-2"></div>
+                </div>
+            </div>
+
+            <!-- Inventory Panel -->
+            <div id="inventory-panel" class="glass-panel rounded-xl p-4 flex-grow overflow-y-auto custom-scrollbar hidden">
+                <h2 class="text-xl font-bold text-center mb-4">กระเป๋าไอเท็ม (<span id="inventory-count">0</span>)</h2>
+                <div id="inventory-filter-buttons" class="flex flex-wrap justify-center gap-2 mb-4"></div>
+                <div id="inventory-grid" class="flex flex-col gap-4">
+                    <p id="empty-inventory" class="col-span-full text-center text-gray-400 mt-8">ยังไม่มีไอเท็ม... ลองสุ่มดูสิ!</p>
+                </div>
+            </div>
+
+            <!-- History Panel -->
+             <div id="history-panel" class="glass-panel rounded-xl p-4 flex-grow overflow-y-auto custom-scrollbar hidden">
+                <h2 class="text-xl font-bold text-center mb-4">ประวัติการสุ่ม</h2>
+                <ul id="history-list" class="space-y-2 text-center">
+                     <p id="empty-history" class="text-center text-gray-400 mt-8">ยังไม่มีประวัติการสุ่ม</p>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Center Canvas -->
+        <div id="canvas-container" class="relative w-full h-full rounded-xl overflow-hidden min-h-[300px] md:min-h-0">
+             <canvas id="gacha-canvas"></canvas>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
+        <div id="result-modal-content" class="glass-panel rounded-2xl p-8 w-full max-w-4xl max-h-[90vh] flex flex-col modal-enter">
+            <h2 class="text-3xl font-bold text-center mb-6">Congratulations!</h2>
+            <div id="result-grid" class="flex-grow overflow-y-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 custom-scrollbar"></div>
+            <button id="close-modal-btn" class="btn btn-secondary mt-6 w-full md:w-1-2 mx-auto py-3 rounded-lg font-bold">Close</button>
+        </div>
+    </div>
+    
+    <div id="legendary-flash" class="fixed inset-0 bg-white z-[100] opacity-0 pointer-events-none"></div>
+
+    <!-- Custom Script -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>
