@@ -1,0 +1,134 @@
+body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    background-color: #000011;
+    background-image: radial-gradient(ellipse at top, #1b2735 0%, #090a0f 100%);
+    color: #e0e0e0;
+    overflow: hidden;
+}
+.font-modern {
+    font-family: 'Orbitron', sans-serif;
+}
+.neon-golden {
+    color: #FFD700;
+    text-shadow: 
+        0 0 5px #FFD700,
+        0 0 10px #FFD700,
+        0 0 20px #FFD700,
+        0 0 40px #FFA500,
+        0 0 80px #FFA500;
+}
+
+/* Liquid Glass Style */
+@keyframes liquid-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.glass-panel {
+    background: radial-gradient(circle at 100% 100%, rgba(100, 116, 139, 0.25) 0%, rgba(51, 65, 85, 0.2) 25%, rgba(15, 23, 42, 0.2) 50%, rgba(30, 41, 59, 0.2) 75%);
+    background-size: 400% 400%;
+    animation: liquid-flow 15s ease infinite;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem; /* Softer corners */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-liquid {
+    background: radial-gradient(circle at 100% 100%, rgba(100, 116, 139, 0.3) 0%, rgba(51, 65, 85, 0.3) 25%, rgba(15, 23, 42, 0.3) 50%, rgba(30, 41, 59, 0.3) 75%);
+    background-size: 400% 400%;
+    animation: liquid-flow 10s ease infinite;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+.btn-liquid:hover:not(:disabled) {
+     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.3), 0 0 15px rgba(173, 216, 230, 0.5);
+}
+
+.btn-neon {
+    background: #4f46e5;
+    border: 1px solid #6366f1;
+    color: white;
+    box-shadow: 0 0 5px #6366f1, 0 0 10px #6366f1, 0 0 20px #818cf8, 0 0 40px #818cf8;
+}
+.btn-neon:hover:not(:disabled) {
+     box-shadow: 0 0 10px #6366f1, 0 0 20px #818cf8, 0 0 40px #a5b4fc, 0 0 80px #a5b4fc;
+}
+.btn-active-tab {
+    background: linear-gradient(45deg, #4f46e5, #6366f1);
+    color: white;
+    box-shadow: 0 0 10px #6366f1, 0 0 20px #818cf8;
+}
+.modal-enter { animation: fadeIn 0.3s ease forwards; }
+.modal-leave { animation: fadeOut 0.3s ease forwards; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeOut {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.95); }
+}
+.item-card { 
+    transition: transform 0.3s ease; 
+    position: relative;
+}
+.item-card:hover { transform: scale(1.05); }
+.item-preview-card {
+    transition: transform 0.2s ease-in-out;
+}
+.item-preview-card:hover {
+    transform: scale(1.2);
+    z-index: 10;
+}
+#canvas-container {
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.75rem;
+}
+#gacha-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    outline: none;
+    cursor: grab;
+}
+#gacha-canvas:active { cursor: grabbing; }
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar { width: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
+
+/* Legendary Effects */
+#legendary-flash.flash {
+    animation: screen-flash 0.8s ease-out forwards;
+}
+@keyframes screen-flash {
+    0% { opacity: 0; background-color: rgba(255, 215, 0, 0.5); }
+    25% { opacity: 1; }
+    100% { opacity: 0; }
+}
+.legendary-card {
+    box-shadow: 0 0 15px #FFD700, 0 0 30px #FFD700, 0 0 45px #FFA500;
+    animation: legendary-glow 2s infinite alternate;
+}
+@keyframes legendary-glow {
+    from { box-shadow: 0 0 15px #FFD700, 0 0 30px #FFD700, 0 0 45px #FFA500; }
+    to { box-shadow: 0 0 25px #FFF700, 0 0 50px #FFD700, 0 0 75px #FFA500; }
+}
