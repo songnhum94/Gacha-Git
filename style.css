@@ -132,3 +132,35 @@ body {
     from { box-shadow: 0 0 15px #FFD700, 0 0 30px #FFD700, 0 0 45px #FFA500; }
     to { box-shadow: 0 0 25px #FFF700, 0 0 50px #FFD700, 0 0 75px #FFA500; }
 }
+
+/* Toast Notifications */
+.toast {
+    animation: toast-in 0.5s, toast-out 0.5s 2.5s;
+    transform: translateX(100%);
+}
+@keyframes toast-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+@keyframes toast-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+}
+
+/* Balance Flash Animation */
+@keyframes flash-green-bg {
+    0% { background-color: rgba(74, 222, 128, 0); }
+    50% { background-color: rgba(74, 222, 128, 0.3); }
+    100% { background-color: rgba(74, 222, 128, 0); }
+}
+@keyframes flash-red-bg {
+    0% { background-color: rgba(248, 113, 113, 0); }
+    50% { background-color: rgba(248, 113, 113, 0.3); }
+    100% { background-color: rgba(248, 113, 113, 0); }
+}
+.flash-green {
+    animation: flash-green-bg 0.7s ease-out;
+}
+.flash-red {
+    animation: flash-red-bg 0.7s ease-out;
+}

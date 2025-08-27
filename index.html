@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     
     <!-- Three.js Import Map -->
@@ -33,7 +34,7 @@
 
     <div id="ui-container" class="relative w-full h-full flex flex-col md:grid md:grid-cols-[400px_1fr] p-4 md:p-8 gap-4">
         
-        <!-- Left Panel: Controls, Info, Inventory, History -->
+        <!-- Left Panel -->
         <div class="w-full h-full flex-shrink-0 flex flex-col gap-4 overflow-y-auto custom-scrollbar md:max-h-full">
             <div class="glass-panel rounded-xl p-6 text-center flex-shrink-0 relative">
                 <a href="https://flashmoon.io/" target="_blank" class="absolute top-3 left-4 btn btn-liquid text-xs px-3 py-1 rounded-md opacity-80 hover:opacity-100">
@@ -51,7 +52,12 @@
                 </div>
                 <div id="connected-view" class="hidden w-full text-center">
                     <p class="text-sm text-gray-400">Wallet Address:</p>
-                    <p id="wallet-address" class="text-xs bg-black/20 p-2 rounded-md break-all"></p>
+                    <p id="wallet-address" class="text-xs bg-black/20 p-2 rounded-md break-all mb-4"></p>
+                    <div id="moonstone-balance" class="w-full text-left">
+                        <h4 class="font-bold text-center mb-2">My Moon Stones</h4>
+                        <div id="moonstone-list" class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -69,12 +75,13 @@
                          <p class="text-center font-semibold">Gachapon machine</p>
                          <div id="machine-buttons" class="grid grid-cols-2 gap-2"></div>
                     </div>
+                    <div id="action-section" class="glass-panel rounded-xl p-6 flex flex-col gap-3 text-center">
+                        <p id="action-message" class="text-sm">ต้องอนุญาตให้ใช้ Moon Stone ก่อน</p>
+                        <button id="action-btn" class="btn btn-liquid w-full py-2 rounded-lg font-bold">Approve Usage</button>
+                    </div>
                     <div class="glass-panel rounded-xl p-6 flex flex-col gap-3">
-                        <p class="text-center font-semibold font-modern">START RANDOM</p>
-                        <div id="gacha-buttons" class="grid grid-cols-3 gap-3">
-                            <button data-amount="1" class="btn btn-liquid w-full py-3 rounded-lg font-bold text-lg">x 1</button>
-                            <button data-amount="5" class="btn btn-liquid w-full py-3 rounded-lg font-bold text-lg">x 5</button>
-                            <button data-amount="10" class="btn btn-liquid w-full py-3 rounded-lg font-bold text-lg">x 10</button>
+                        <div id="gacha-buttons">
+                            <button id="gacha-button" class="btn btn-liquid w-full py-3 rounded-lg font-bold text-lg font-modern" disabled>START RANDOM</button>
                         </div>
                     </div>
                 </div>
@@ -114,14 +121,38 @@
 
     <!-- Result Modal -->
     <div id="result-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
-        <div id="result-modal-content" class="glass-panel rounded-2xl p-8 w-full max-w-4xl max-h-[90vh] flex flex-col modal-enter">
-            <h2 class="text-3xl font-bold text-center mb-6">Congratulations!</h2>
-            <div id="result-grid" class="flex-grow overflow-y-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 custom-scrollbar"></div>
-            <button id="close-modal-btn" class="btn btn-secondary mt-6 w-full md:w-1-2 mx-auto py-3 rounded-lg font-bold">Close</button>
+        <div id="result-modal-content" class="glass-panel rounded-2xl p-8 w-full max-w-xs flex flex-col items-center modal-enter">
+            <h2 class="text-3xl font-bold text-center mb-6">You Got!</h2>
+            <div id="result-display" class="w-full mb-6">
+            </div>
+            <button id="close-modal-btn" class="btn btn-liquid w-full py-3 rounded-lg font-bold">Close</button>
         </div>
     </div>
     
+    <!-- Buy Stone Modal -->
+    <div id="buy-stone-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
+        <div id="buy-stone-modal-content" class="glass-panel rounded-2xl p-8 w-full max-w-sm flex flex-col items-center text-center modal-enter">
+            <h2 id="buy-stone-title" class="text-2xl font-bold mb-4">Buy Moon Stone</h2>
+            <img id="buy-stone-image" src="https://placehold.co/150x150/FFD700/000000?text=Stone" alt="Moon Stone" class="w-32 h-32 mb-4 rounded-full">
+            <p id="buy-stone-details" class="text-sm mb-2">Purchase more stones to continue your adventure!</p>
+            <p id="buy-stone-price" class="font-bold text-lg mb-6 text-cyan-400">Price: 0.0358 BNB</p>
+            <div class="w-full flex gap-4">
+                <button id="confirm-buy-btn" class="btn btn-neon flex-1 py-3 rounded-lg font-bold">Yes</button>
+                <button id="cancel-buy-btn" class="btn btn-liquid flex-1 py-3 rounded-lg font-bold">No</button>
+            </div>
+        </div>
+    </div>
+
     <div id="legendary-flash" class="fixed inset-0 bg-white z-[100] opacity-0 pointer-events-none"></div>
+
+    <!-- Transaction Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black/80 flex-col items-center justify-center z-[101] hidden">
+        <div class="w-16 h-16 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+        <p id="loading-message" class="text-white text-lg mt-4">กำลังทำรายการ...</p>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[102] space-y-2"></div>
 
     <!-- Custom Script -->
     <script type="module" src="script.js"></script>
