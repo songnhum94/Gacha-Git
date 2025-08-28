@@ -126,7 +126,12 @@ function setupResponsiveCanvas() {
                 desktopWrapper.appendChild(canvasElement);
             }
         }
+<<<<<<< HEAD
         handleResize();
+=======
+        // Use a short timeout to ensure the element is visible before resizing
+        setTimeout(handleResize, 50);
+>>>>>>> feature/new-styles
     }
     window.addEventListener('resize', moveCanvas);
     moveCanvas();

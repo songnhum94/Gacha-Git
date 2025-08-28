@@ -95,10 +95,7 @@ body {
     transform: scale(1.2);
     z-index: 10;
 }
-#canvas-container {
-    background: rgba(0,0,0,0.2);
-    border-radius: 0.75rem;
-}
+
 #gacha-canvas {
     position: absolute;
     top: 0;
