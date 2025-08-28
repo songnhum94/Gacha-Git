@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เดโมเว็บสุ่มกาชาปอง 3D</title>
+    <title>3D Gachapon NFT Demo</title>
     
     <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -32,10 +32,10 @@
 </head>
 <body class="w-screen h-screen">
 
-    <!-- Container หลัก กลับมาใช้ Grid สำหรับ Desktop -->
+    <!-- Main container, uses Grid for Desktop -->
     <div id="ui-container" class="relative w-full h-full flex flex-col md:grid md:grid-cols-[400px_1fr] p-4 md:p-8 gap-8">
         
-        <!-- Panel ซ้าย (Scrollable) -->
+        <!-- Left Panel (Scrollable) -->
         <div class="w-full h-full flex-shrink-0 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
             <div class="glass-panel rounded-xl p-6 text-center flex-shrink-0 relative">
                 <a href="https://flashmoon.io/" target="_blank" class="absolute top-3 left-4 btn btn-liquid text-xs px-3 py-1 rounded-md opacity-80 hover:opacity-100">
@@ -48,8 +48,8 @@
             <!-- Wallet Section -->
             <div id="wallet-section" class="glass-panel rounded-xl p-6 flex flex-col items-center gap-4 flex-shrink-0">
                 <div id="connect-wallet-view">
-                    <p class="mb-4 text-center">กรุณาเชื่อมต่อ Wallet เพื่อเริ่มสุ่ม</p>
-                    <button id="connect-wallet-btn" class="btn btn-neon w-full py-3 rounded-lg font-bold">🔗 Connect wallet</button>
+                    <p class="mb-4 text-center">Please connect your wallet to start.</p>
+                    <button id="connect-wallet-btn" class="btn btn-neon w-full py-3 rounded-lg font-bold">🔗 Connect Wallet</button>
                 </div>
                 <div id="connected-view" class="hidden w-full text-center">
                     <p class="text-sm text-gray-400">Wallet Address:</p>
@@ -64,7 +64,7 @@
 
             <!-- Tab Navigation -->
             <div class="glass-panel rounded-xl p-2 flex items-center justify-center gap-2">
-                <button id="show-gacha-btn" class="btn btn-active-tab px-4 py-2 rounded-lg font-semibold flex-1 text-sm">RANDOM</button>
+                <button id="show-gacha-btn" class="btn btn-active-tab px-4 py-2 rounded-lg font-semibold flex-1 text-sm">GACHA</button>
                 <button id="show-inventory-btn" class="btn btn-liquid bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold flex-1 text-sm">INVENTORY</button>
                 <button id="show-history-btn" class="btn btn-liquid bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold flex-1 text-sm">HISTORY</button>
             </div>
@@ -73,17 +73,17 @@
             <div id="gacha-panel" class="flex flex-col gap-4">
                 <div id="gacha-main-controls" class="flex-col gap-4 hidden flex-shrink-0">
                     <div class="glass-panel rounded-xl p-6 flex flex-col gap-3">
-                         <p class="text-center font-semibold">Gachapon machine</p>
+                         <p class="text-center font-semibold">Gachapon Machine</p>
                          <div id="machine-buttons" class="grid grid-cols-2 gap-2"></div>
                     </div>
 
-                    <!-- Container สำหรับ Canvas บนมือถือ (จะแสดงเฉพาะจอมือถือ) -->
+                    <!-- Canvas container for mobile view -->
                     <div id="mobile-canvas-wrapper" class="relative w-full h-80 rounded-xl overflow-hidden my-4 md:hidden">
-                         <!-- JS จะย้าย Canvas มาไว้ที่นี่เมื่อเป็นจอมือถือ -->
+                         <!-- JS will move the Canvas here on mobile -->
                     </div>
 
                     <div id="action-section" class="glass-panel rounded-xl p-6 flex flex-col gap-3 text-center">
-                        <p id="action-message" class="text-sm">ต้องอนุญาตให้ใช้ Moon Stone ก่อน</p>
+                        <p id="action-message" class="text-sm">You must approve Moon Stone usage first.</p>
                         <button id="action-btn" class="btn btn-liquid w-full py-2 rounded-lg font-bold">Approve Usage</button>
                     </div>
                     <div class="glass-panel rounded-xl p-6 flex flex-col gap-3">
@@ -104,25 +104,25 @@
 
             <!-- Inventory Panel -->
             <div id="inventory-panel" class="glass-panel rounded-xl p-4 flex-grow overflow-y-auto custom-scrollbar hidden">
-                <h2 class="text-xl font-bold text-center mb-4">กระเป๋าไอเท็ม (<span id="inventory-count">0</span>)</h2>
+                <h2 class="text-xl font-bold text-center mb-4">Inventory (<span id="inventory-count">0</span>)</h2>
                 <div id="inventory-filter-buttons" class="flex flex-wrap justify-center gap-2 mb-4"></div>
                 <div id="inventory-grid" class="flex flex-col gap-4">
-                    <p id="empty-inventory" class="col-span-full text-center text-gray-400 mt-8">ยังไม่มีไอเท็ม... ลองสุ่มดูสิ!</p>
+                    <p id="empty-inventory" class="col-span-full text-center text-gray-400 mt-8">No items yet... Try a roll!</p>
                 </div>
             </div>
 
             <!-- History Panel -->
              <div id="history-panel" class="glass-panel rounded-xl p-4 flex-grow overflow-y-auto custom-scrollbar hidden">
-                <h2 class="text-xl font-bold text-center mb-4">ประวัติการสุ่ม</h2>
+                <h2 class="text-xl font-bold text-center mb-4">Roll History</h2>
                 <ul id="history-list" class="space-y-2 text-center">
-                     <p id="empty-history" class="text-center text-gray-400 mt-8">ยังไม่มีประวัติการสุ่ม</p>
+                     <p id="empty-history" class="text-center text-gray-400 mt-8">No history yet.</p>
                 </ul>
             </div>
         </div>
 
-        <!-- Panel ขวา (Desktop Canvas Container) -->
+        <!-- Right Panel (Desktop Canvas Container) -->
         <div id="desktop-canvas-wrapper" class="hidden md:block relative w-full h-full rounded-xl overflow-hidden">
-            <!-- Canvas หลักจะถูกสร้างที่นี่โดย JS -->
+            <!-- Main canvas will be created here by JS -->
             <canvas id="gacha-canvas"></canvas>
         </div>
 
@@ -157,13 +157,13 @@
     <!-- Transaction Overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-black/80 flex-col items-center justify-center z-[101] hidden">
         <div class="w-16 h-16 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
-        <p id="loading-message" class="text-white text-lg mt-4">กำลังทำรายการ...</p>
+        <p id="loading-message" class="text-white text-lg mt-4">Processing Transaction...</p>
     </div>
 
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-[102] space-y-2"></div>
 
     <!-- Custom Script -->
-    <script type="module" src="script.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

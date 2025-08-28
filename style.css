@@ -164,3 +164,49 @@ body {
 .flash-red {
     animation: flash-red-bg 0.7s ease-out;
 }
+/* --- Gacha Ready Button Style --- */
+
+/* สไตล์หลักของปุ่มเมื่อพร้อมกด */
+.btn-go {
+    background: #113c11; /* พื้นหลังสีเขียวเข้ม */
+    color: #98ff98; /* ตัวอักษรสีเขียวสว่าง */
+    border: 1px solid #00ff00;
+    font-weight: bold;
+    /* เพิ่มแสงนีออนสีเขียว */
+    box-shadow: 
+        0 0 5px #00ff00,
+        0 0 15px #00ff00,
+        0 0 30px #00ff00,
+        0 0 60px #39ff14;
+    position: relative; /* สำคัญมากสำหรับอนิเมชัน */
+    overflow: hidden; /* ป้องกันไม่ให้แสงล้นออกนอกปุ่ม */
+    transition: all 0.3s ease;
+}
+
+/* สร้างแถบแสงสำหรับอนิเมชัน */
+.btn-go::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 20px;
+    height: 200%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+    transform: rotate(45deg);
+    /* เรียกใช้งานอนิเมชัน */
+    animation: shine-effect 3s ease-in-out infinite;
+    animation-delay: 0.5s; /* หน่วงเวลาก่อนเริ่มอนิเมชัน */
+}
+
+/* โค้ดอนิเมชันแสงวิ่ง (Keyframes) */
+@keyframes shine-effect {
+    0% {
+        left: -50%;
+    }
+    50% {
+        left: 120%;
+    }
+    100% {
+        left: 120%;
+    }
+}
