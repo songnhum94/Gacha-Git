@@ -2,11 +2,7 @@
 import { state } from './gachaState.js';
 import { dom, updateMoonStoneUI, updateGachaControls } from './gachaUI.js';
 import { initAudio, isAudioInitialized } from './audio.js';
-<<<<<<< HEAD
 import { switchToSingleView } from './gachaScene.js';
-=======
-import { switchToSingleView, handleResize } from './gachaScene.js'; // Import handleResize
->>>>>>> feature/new-styles
 
 async function connectWallet() {
     if (typeof window.ethereum === 'undefined') {
@@ -40,17 +36,7 @@ function handleWalletConnected(address) {
     if (!isAudioInitialized()) {
         Tone.start().then(initAudio);
     }
-<<<<<<< HEAD
     switchToSingleView(state.currentMachineIndex);
-=======
-
-    // FIX: Use a short timeout to ensure the DOM has updated and the container has dimensions
-    // This will correctly size the canvas on mobile after it becomes visible.
-    setTimeout(() => {
-        handleResize();
-        switchToSingleView(state.currentMachineIndex);
-    }, 50);
->>>>>>> feature/new-styles
 }
 
 export { connectWallet };

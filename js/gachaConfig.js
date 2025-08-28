@@ -86,15 +86,8 @@ export const machines = [
 ];
 
 export const moonStoneInfo = {
-<<<<<<< HEAD
     0: { name: "Gold Moon Stone", color: "text-yellow-400", img: "https://placehold.co/150x150/FFD700/000000?text=G", details: "A special stone used to summon heroes from the Zodiac." },
     1: { name: "Rainbow Moon Stone", color: "text-purple-400", img: "https://placehold.co/150x150/9400D3/FFFFFF?text=R", details: "A mysterious stone that unlocks the power of the 13 Kingdoms." },
     2: { name: "Black Moon Stone", color: "text-gray-400", img: "https://placehold.co/150x150/2d3748/FFFFFF?text=B", details: "A dark stone that resonates with the vastness of the 20 Cosmic." },
     3: { name: "Red Moon Stone", color: "text-red-400", img: "https://placehold.co/150x150/ef4444/FFFFFF?text=R", details: "A vibrant stone required to mint the legendary 21 NFTs." },
-=======
-    0: { name: "Gold Moon Stone", color: "text-yellow-400", img: "https://img2.pic.in.th/pic/Gold-moon-stone.jpg", details: "A special stone used to summon heroes from the Zodiac." },
-    1: { name: "Rainbow Moon Stone", color: "text-purple-400", img: "https://img5.pic.in.th/file/secure-sv1/Rainbow-moon-stone.jpg", details: "A mysterious stone that unlocks the power of the 13 Kingdoms." },
-    2: { name: "Black Moon Stone", color: "text-gray-400", img: "https://img5.pic.in.th/file/secure-sv1/Black-moon-stone.jpg", details: "A dark stone that resonates with the vastness of the 20 Cosmic." },
-    3: { name: "Red Moon Stone", color: "text-red-400", img: "https://img2.pic.in.th/pic/Red-moon-stone.jpg", details: "A vibrant stone required to mint the legendary 21 NFTs." },
->>>>>>> feature/new-styles
 };
