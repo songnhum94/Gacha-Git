@@ -6,29 +6,39 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { state } from './gachaState.js';
 import { machines } from './gachaConfig.js';
 import { updateGachaControls, updateInventory, updateHistory, showResultModal } from './gachaUI.js';
-import { playSuspenseSound, stopSuspenseSound } from './audio.js';
+import { playSuspenseSound, stopSuspenseSound, playLegendaryRewardSound } from './audio.js'; // Import เสียงเพิ่ม
 
 let scene, camera, renderer, controls, starField;
 let machine3DObjects = [];
 const canvas = document.getElementById('gacha-canvas');
 
+// --- [!] เราจะเก็บ reference ของ Super Legendary auras ไว้ที่นี่ ---
+let activeAuras = [];
+
 function drawItem() {
     const machine = machines[state.currentMachineIndex];
     let random = Math.random();
     let cumulative = 0;
+
+    // --- [!] แก้ไขเล็กน้อยเพื่อให้รองรับ drop rate ที่อาจไม่เต็ม 1.0 ---
+    const totalRate = machine.dropRates.reduce((acc, rate) => acc + rate.rate, 0);
+    random *= totalRate;
+
     for (const rateInfo of machine.dropRates) {
         cumulative += rateInfo.rate;
         if (random < cumulative) {
             const rarity = rateInfo.rarity;
             const possibleItems = machine.itemPool.filter(item => item.rarity === rarity);
-            return possibleItems[Math.floor(Math.random() * possibleItems.length)];
+            if (possibleItems.length > 0) {
+                return possibleItems[Math.floor(Math.random() * possibleItems.length)];
+            }
         }
     }
-    return null;
+    // Fallback in case of rounding errors or empty pools
+    return machine.itemPool[machine.itemPool.length - 1];
 }
 
-function performRoll() {
-    const drawnItem = drawItem();
+function performRoll(drawnItem) { // <-- รับ drawnItem มาเลย ไม่ต้องสุ่มใหม่
     if (drawnItem) {
         const result = { ...drawnItem, id: Date.now() + Math.random(), machineName: machines[state.currentMachineIndex].name };
         state.inventory.push(result);
@@ -41,18 +51,63 @@ function performRoll() {
 
 export function triggerGachaAnimation() {
     if (state.isAnimating) return;
+
+    // --- [!] เราจะทำการสุ่มไอเทมก่อน เพื่อจะได้รู้ว่าต้องแสดงเอฟเฟกต์พิเศษหรือไม่ ---
+    const drawnItem = drawItem();
+
     state.isAnimating = true;
     state.isShaking = true;
     playSuspenseSound();
+    if (drawnItem.rarity === 'SUPER LEGENDARY') {
+        playLegendaryRewardSound(); // เล่นเสียงประกอบสุดอลังการ
+    }
+
+
     const lever = machine3DObjects[state.currentMachineIndex].lever;
     const tl = gsap.timeline();
     tl.to(camera.position, { z: 5, duration: 0.3, ease: 'back.in(1.7)' });
     tl.to(lever.rotation, { z: -Math.PI / 1.5, duration: 0.3, ease: "power3.in" }, "-=0.1");
     tl.to(lever.rotation, { z: 0, duration: 0.6, ease: "back.out(2)" });
+
+    // --- สร้างแคปซูลหลัก ---
     const capsuleMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.5, roughness: 0.2 });
     const capsule = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 32), capsuleMat);
     capsule.position.set(0, -0.5, 1.0);
     machine3DObjects[state.currentMachineIndex].group.add(capsule);
+
+    // --- [!!!] ส่วนสร้างเอฟเฟกต์ SUPER LEGENDARY [!!!] ---
+    if (drawnItem && drawnItem.rarity === 'SUPER LEGENDARY') {
+        // 1. Aura ชั้นใน (ทรงกลม Pulsing)
+        const auraMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending, // ทำให้แสงสวยงามเมื่อซ้อนกัน
+            depthWrite: false // ป้องกันปัญหาการซ้อนทับของวัตถุโปร่งใส
+        });
+        const auraGeometry = new THREE.SphereGeometry(0.25, 32, 32);
+        const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial);
+        capsule.add(auraMesh); // ให้ Aura ติดไปกับแคปซูล
+
+        // 2. Aura ชั้นนอก (วงแหวนหมุน)
+        const ringMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            side: THREE.DoubleSide
+        });
+        const ringGeometry = new THREE.TorusGeometry(0.35, 0.03, 16, 100);
+        const auraRing = new THREE.Mesh(ringGeometry, ringMaterial);
+        auraRing.rotation.x = Math.PI / 2; // ทำให้วงแหวนตั้งขึ้น
+        capsule.add(auraRing);
+
+        // 3. เก็บ Reference ของ Auras ไว้เพื่ออัปเดตใน animate loop
+        activeAuras.push(auraMesh, auraRing);
+    }
+    // --- จบส่วนสร้างเอฟเฟกต์ ---
+
     tl.from(capsule.scale, { x: 0, y: 0, z: 0, duration: 0.2, ease: 'back.out(1.7)' }, "<0.2");
     tl.to(capsule.position, { y: -1.2, duration: 0.5, ease: "bounce.out" }, "<");
     tl.to(scene.position, { x: '+=0.05', yoyo: true, repeat: 5, duration: 0.05, ease: 'power1.inOut' }, "-=0.5");
@@ -60,7 +115,8 @@ export function triggerGachaAnimation() {
     tl.call(() => { state.isShaking = false; stopSuspenseSound(); }, [], "-=0.8");
     tl.to(camera.position, { z: 8, duration: 0.5, ease: 'power2.out', onComplete: () => {
         machine3DObjects[state.currentMachineIndex].group.remove(capsule);
-        performRoll();
+        activeAuras = []; // ล้าง auras เมื่อ animation จบ
+        performRoll(drawnItem); // ส่ง item ที่สุ่มได้ไปแสดงผล
         state.isAnimating = false;
         updateGachaControls();
     }}, ">0.5");
@@ -88,12 +144,35 @@ function animate() {
     requestAnimationFrame(animate);
     controls.update();
     if (starField) { starField.rotation.y += 0.0001; }
+
+    const time = Date.now() * 0.005;
+    const hue = time % 1;
+
+    // --- [!] อัปเดตเอฟเฟกต์ SUPER LEGENDARY ในทุกๆ Frame ---
+    if (activeAuras.length > 0) {
+        const auraSphere = activeAuras[0];
+        const auraRing = activeAuras[1];
+
+        // เปลี่ยนสีรุ้ง
+        auraSphere.material.color.setHSL(hue, 1, 0.6);
+        auraRing.material.color.setHSL((hue + 0.2) % 1, 1, 0.6); // ให้สีวงแหวนต่างจากทรงกลมเล็กน้อย
+
+        // ทำให้ทรงกลม Pulsing (ขยาย-หด)
+        const scale = Math.sin(time * 5) * 0.1 + 1; // 0.9 to 1.1
+        auraSphere.scale.set(scale, scale, scale);
+
+        // ทำให้วงแหวนหมุน
+        auraRing.rotation.z += 0.02;
+    }
+
+
     machine3DObjects.forEach(obj => {
         if (obj.nftTextMaterial) {
             const hue = (Date.now() * 0.0002) % 1;
             obj.nftTextMaterial.emissive.setHSL(hue, 1, 0.6);
         }
     });
+
     if (state.isShaking && machine3DObjects[state.currentMachineIndex]?.capsules) {
         const containerRadius = 0.95;
         const containerHeight = { min: 1.0, max: 2.8 };

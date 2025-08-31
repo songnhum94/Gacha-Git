@@ -84,7 +84,14 @@ export function updateAllItemsUI() {
     machine.itemPool.forEach(item => {
         const rarityInfo = machine.dropRates.find(r => r.rarity === item.rarity);
         const div = document.createElement('div');
-        div.className = 'flex flex-col items-center text-center item-preview-card';
+        // เพิ่ม padding และ border เพื่อให้ glow effect แสดงผลสวยงาม
+        div.className = 'p-1 border-2 border-transparent rounded-lg flex flex-col items-center text-center item-preview-card';
+
+        // เพิ่ม class สำหรับ SUPER LEGENDARY
+        if (item.rarity === 'SUPER LEGENDARY') {
+            div.classList.add('super-legendary-item');
+        }
+
         div.innerHTML = `<img src="${item.img}" alt="${item.name}" class="w-12 h-12 object-cover rounded-md border-2" style="border-color: ${rarityInfo.color};"><p class="text-[10px] mt-1 leading-tight">${item.name}</p>`;
         dom.info.itemsGrid.appendChild(div);
     });
@@ -127,7 +134,7 @@ export function updateInventory() {
         for (const itemName in itemCounts) {
             const item = state.inventory.find(i => i.name === itemName);
             const count = itemCounts[itemName];
-            const card = createItemCard(item);
+            const card = createItemCard(item); // createItemCard จะถูกแก้ไขให้รองรับ SL
             const countBadge = `<div class="absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-gray-800">x${count}</div>`;
             card.innerHTML += countBadge;
             categoryGrid.appendChild(card);
@@ -149,6 +156,11 @@ export function updateHistory() {
             const itemsHtml = entry.items.map(item => {
                 const machine = machines.find(m => m.itemPool.some(p => p.name === item.name));
                 const rarityInfo = machine.dropRates.find(r => r.rarity === item.rarity);
+                
+                // เพิ่ม class สำหรับตัวอักษร SUPER LEGENDARY ใน History
+                if (item.rarity === 'SUPER LEGENDARY') {
+                    return `<span class="super-legendary-text">${item.name}</span>`;
+                }
                 return `<span style="color: ${rarityInfo.color}; text-shadow: 0 0 5px ${rarityInfo.color};">${item.name}</span>`;
             }).join(', ');
             li.innerHTML = `[${entry.date.toLocaleString('en-US')}] Pulled: ${itemsHtml}`;
@@ -159,33 +171,69 @@ export function updateHistory() {
 
 function createItemCard(item) {
     const machine = machines.find(m => m.itemPool.some(p => p.name === item.name));
-    const rarityInfo = machine.dropRates.find(r => r.rarity === item.rarity);
+    const rarityInfo = machine ? machine.dropRates.find(r => r.rarity === item.rarity) : null;
+    const color = rarityInfo ? rarityInfo.color : '#A9A9A9';
+
     const card = document.createElement('div');
     card.className = `item-card glass-panel rounded-lg overflow-hidden flex flex-col items-center p-2 border-2 w-full`;
-    card.style.borderColor = rarityInfo.color;
-    if (item.rarity === 'LEGENDARY') card.classList.add('legendary-card');
-    else card.style.boxShadow = `0 0 15px ${rarityInfo.color}60`;
-    card.innerHTML = `<img src="${item.img}" alt="${item.name}" class="w-full h-auto object-cover rounded-md aspect-square"><p class="text-sm font-bold mt-2 text-center text-white">${item.name}</p><p class="text-xs font-semibold" style="color: ${rarityInfo.color};">${item.rarity}</p>`;
+    card.style.borderColor = color;
+
+    // เตรียม HTML สำหรับ Rarity text
+    let rarityTextHTML = `<p class="text-xs font-semibold" style="color: ${color};">${item.rarity}</p>`;
+
+    if (item.rarity === 'SUPER LEGENDARY') {
+        card.classList.add('super-legendary-item'); // เพิ่ม glow ให้กรอบการ์ด
+        // เปลี่ยน HTML ของ Rarity text ให้ใช้ class แสงรุ้ง
+        rarityTextHTML = `<p class="text-xs font-semibold super-legendary-text">${item.rarity}</p>`;
+    } else if (item.rarity === 'LEGENDARY') {
+        card.classList.add('legendary-card');
+    } else {
+        card.style.boxShadow = `0 0 15px ${color}60`;
+    }
+
+    card.innerHTML = `<img src="${item.img}" alt="${item.name}" class="w-full h-auto object-cover rounded-md aspect-square"><p class="text-sm font-bold mt-2 text-center text-white">${item.name}</p>${rarityTextHTML}`;
     return card;
 }
 
 export function showResultModal(result) {
     const hasLegendary = result.rarity === 'LEGENDARY';
-    if (hasLegendary) {
+    const isSuperLegendary = result.rarity === 'SUPER LEGENDARY';
+
+    // --- ส่วนจัดการแสงวาบเต็มหน้าจอ ---
+    document.body.classList.remove('super-legendary-screen-flash');
+    if (isSuperLegendary) {
+        requestAnimationFrame(() => {
+            document.body.classList.add('super-legendary-screen-flash');
+        });
+        playLegendaryRewardSound();
+        setTimeout(() => {
+             document.body.classList.remove('super-legendary-screen-flash');
+        }, 1500);
+    } else if (hasLegendary) {
         dom.overlays.legendaryFlash.classList.add('flash');
         playLegendaryRewardSound();
         setTimeout(() => dom.overlays.legendaryFlash.classList.remove('flash'), 800);
     } else {
         playRewardSound();
     }
+
     dom.modals.result.resultDisplay.innerHTML = '';
     const card = createItemCard(result);
     card.classList.add('opacity-0', 'transform', 'scale-90');
+
+    // --- ส่วนจัดการพื้นหลังการ์ด ---
+    if (isSuperLegendary) {
+        dom.modals.result.content.classList.add('super-legendary-card-bg');
+    } else {
+        dom.modals.result.content.classList.remove('super-legendary-card-bg');
+    }
+
     dom.modals.result.resultDisplay.appendChild(card);
     setTimeout(() => {
         card.classList.remove('opacity-0', 'scale-90');
         card.classList.add('opacity-100', 'scale-100', 'transition-all', 'duration-500');
-    }, 100 + (hasLegendary ? 300 : 0));
+    }, 100 + (hasLegendary || isSuperLegendary ? 300 : 0));
+    
     dom.modals.result.container.classList.remove('hidden');
     dom.modals.result.content.classList.add('modal-enter');
     dom.modals.result.content.classList.remove('modal-leave');
@@ -222,3 +270,4 @@ export function showToast(message, type = 'info') {
     dom.overlays.toastContainer.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
 }
+

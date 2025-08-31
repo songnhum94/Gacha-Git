@@ -10,7 +10,7 @@ body {
 }
 .neon-golden {
     color: #FFD700;
-    text-shadow: 
+    text-shadow:
         0 0 5px #FFD700,
         0 0 10px #FFD700,
         0 0 20px #FFD700,
@@ -83,8 +83,8 @@ body {
     from { opacity: 1; transform: scale(1); }
     to { opacity: 0; transform: scale(0.95); }
 }
-.item-card { 
-    transition: transform 0.3s ease; 
+.item-card {
+    transition: transform 0.3s ease;
     position: relative;
 }
 .item-card:hover { transform: scale(1.05); }
@@ -163,24 +163,21 @@ body {
 }
 /* --- Gacha Ready Button Style --- */
 
-/* สไตล์หลักของปุ่มเมื่อพร้อมกด */
 .btn-go {
-    background: #113c11; /* พื้นหลังสีเขียวเข้ม */
-    color: #98ff98; /* ตัวอักษรสีเขียวสว่าง */
+    background: #113c11;
+    color: #98ff98;
     border: 1px solid #00ff00;
     font-weight: bold;
-    /* เพิ่มแสงนีออนสีเขียว */
-    box-shadow: 
+    box-shadow:
         0 0 5px #00ff00,
         0 0 15px #00ff00,
         0 0 20px #00ff00,
         0 0 20px #39ff14;
-    position: relative; /* สำคัญมากสำหรับอนิเมชัน */
-    overflow: hidden; /* ป้องกันไม่ให้แสงล้นออกนอกปุ่ม */
+    position: relative;
+    overflow: hidden;
     transition: all 0.3s ease;
 }
 
-/* สร้างแถบแสงสำหรับอนิเมชัน */
 .btn-go::before {
     content: '';
     position: absolute;
@@ -190,20 +187,77 @@ body {
     height: 200%;
     background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
     transform: rotate(45deg);
-    /* เรียกใช้งานอนิเมชัน */
     animation: shine-effect 3s ease-in-out infinite;
-    animation-delay: 0.5s; /* หน่วงเวลาก่อนเริ่มอนิเมชัน */
+    animation-delay: 0.5s;
 }
 
-/* โค้ดอนิเมชันแสงวิ่ง (Keyframes) */
 @keyframes shine-effect {
-    0% {
-        left: -50%;
-    }
-    50% {
-        left: 120%;
-    }
-    100% {
-        left: 120%;
-    }
+    0%   { left: -50%; }
+    50%  { left: 120%; }
+    100% { left: 120%; }
 }
+
+/* --- [!] ส่วนโค้ดสำหรับ SUPER LEGENDARY (เวอร์ชันแก้ไข) [!] --- */
+
+/* Keyframe สำหรับแสงวาบรุ้งทั่วจอ */
+@keyframes super-legendary-screen-flash {
+    0% { opacity: 0; }
+    10% { opacity: 0.9; }
+    100% { opacity: 0; }
+}
+
+/* Class ที่ใช้กับ <body> เพื่อสร้างเอฟเฟกต์เต็มหน้าจอ */
+body.super-legendary-screen-flash::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    pointer-events: none;
+    background: radial-gradient(circle at center, #ff00ff 0%, #00ffff 20%, #00ff00 40%, #ffff00 60%, #ff0000 80%, #ff00ff 100%);
+    background-size: 200% 200%;
+    animation: super-legendary-screen-flash 1.5s ease-out forwards;
+}
+
+/* --- [!] แก้ไข: เอาพื้นหลังสายรุ้งและเงาพิเศษออกจาก Modal Content [!] --- */
+/* ให้ Modal Content ใช้สไตล์ .glass-panel ตามปกติเสมอ */
+#result-modal-content.super-legendary-card-bg {
+    /* ไม่มีสไตล์พิเศษที่นี่อีกต่อไป */
+    /* มันจะใช้สไตล์จาก .glass-panel โดยอัตโนมัติ */
+}
+
+
+/* Keyframe สำหรับแสงรุ้งรอบกรอบการ์ด (นี่คือส่วนที่ทำงาน) */
+@keyframes super-legendary-glow {
+    0%   { border-color: #ff00ff; box-shadow: 0 0 10px #ff00ff, 0 0 15px #ff00ff, inset 0 0 5px #ff00ff80; }
+    20%  { border-color: #00ffff; box-shadow: 0 0 10px #00ffff, 0 0 15px #00ffff, inset 0 0 5px #00ffff80; }
+    40%  { border-color: #00ff00; box-shadow: 0 0 10px #00ff00, 0 0 15px #00ff00, inset 0 0 5px #00ff0080; }
+    60%  { border-color: #ffff00; box-shadow: 0 0 10px #ffff00, 0 0 15px #ffff00, inset 0 0 5px #ffff0080; }
+    80%  { border-color: #ff7f00; box-shadow: 0 0 10px #ff7f00, 0 0 15px #ff7f00, inset 0 0 5px #ff7f0080; }
+    100% { border-color: #ff00ff; box-shadow: 0 0 10px #ff00ff, 0 0 15px #ff00ff, inset 0 0 5px #ff00ff80; }
+}
+
+/* Class สำหรับใช้กับกรอบการ์ด SUPER LEGENDARY โดยตรง */
+.super-legendary-item {
+    animation: super-legendary-glow 4s linear infinite;
+}
+
+
+/* Keyframe สำหรับแสงรุ้งของตัวอักษร */
+@keyframes rainbow-text-glow {
+    0%   { color: #ff00ff; text-shadow: 0 0 5px #ff00ff; }
+    20%  { color: #00ffff; text-shadow: 0 0 5px #00ffff; }
+    40%  { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
+    60%  { color: #ffff00; text-shadow: 0 0 5px #ffff00; }
+    80%  { color: #ff7f00; text-shadow: 0 0 5px #ff7f00; }
+    100% { color: #ff00ff; text-shadow: 0 0 5px #ff00ff; }
+}
+
+/* Class สำหรับใช้กับตัวอักษร 'SUPER LEGENDARY' */
+.super-legendary-text {
+    animation: rainbow-text-glow 4s linear infinite;
+    font-weight: bold;
+}
+
