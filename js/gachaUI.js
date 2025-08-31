@@ -17,7 +17,6 @@ export function updateGachaControls() {
     if (!state.isConnected) {
         dom.gacha.button.disabled = true;
         dom.gacha.button.textContent = "CONNECT WALLET TO START";
-        dom.gacha.actionSection.classList.add('hidden');
         return;
     }
     dom.gacha.button.textContent = "START RANDOM";
@@ -64,7 +63,6 @@ export function updateMoonStoneUI() {
 export function updateMachineInfo() {
     const machine = machines[state.currentMachineIndex];
     dom.info.ratesTitle.textContent = `Drop Rates: ${machine.name}`;
-    dom.info.itemsTitle.textContent = `Items in Gachapon`;
     dom.info.ratesList.innerHTML = '';
     machine.dropRates.forEach(rate => {
         const li = document.createElement('li');
@@ -72,6 +70,16 @@ export function updateMachineInfo() {
         li.innerHTML = `<span style="color: ${rate.color};" class="font-semibold">${rate.rarity}</span><span>${(rate.rate * 100).toFixed(2)}%</span>`;
         dom.info.ratesList.appendChild(li);
     });
+    document.querySelectorAll('#machine-buttons button').forEach((btn, index) => {
+        btn.classList.toggle('btn-active-tab', index === state.currentMachineIndex);
+        btn.classList.toggle('btn-liquid', index !== state.currentMachineIndex);
+        btn.classList.toggle('bg-gray-700', index !== state.currentMachineIndex);
+    });
+}
+
+export function updateAllItemsUI() {
+    const machine = machines[state.currentMachineIndex];
+    dom.info.itemsTitle.textContent = `Items in Gachapon`;
     dom.info.itemsGrid.innerHTML = '';
     machine.itemPool.forEach(item => {
         const rarityInfo = machine.dropRates.find(r => r.rarity === item.rarity);
@@ -79,11 +87,6 @@ export function updateMachineInfo() {
         div.className = 'flex flex-col items-center text-center item-preview-card';
         div.innerHTML = `<img src="${item.img}" alt="${item.name}" class="w-12 h-12 object-cover rounded-md border-2" style="border-color: ${rarityInfo.color};"><p class="text-[10px] mt-1 leading-tight">${item.name}</p>`;
         dom.info.itemsGrid.appendChild(div);
-    });
-    document.querySelectorAll('#machine-buttons button').forEach((btn, index) => {
-        btn.classList.toggle('btn-active-tab', index === state.currentMachineIndex);
-        btn.classList.toggle('btn-liquid', index !== state.currentMachineIndex);
-        btn.classList.toggle('bg-gray-700', index !== state.currentMachineIndex);
     });
 }
 

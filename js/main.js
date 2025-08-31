@@ -2,7 +2,7 @@
 import { state } from './gachaState.js';
 import { machines } from './gachaConfig.js';
 import { playClickSound, playSuccessSound, playErrorSound } from './audio.js';
-import { dom, updateGachaControls, updateMachineInfo, showBuyStoneModal, hideBuyStoneModal, showLoading, hideLoading, showToast, updateMoonStoneUI, updateInventory, updateHistory } from './gachaUI.js';
+import { dom, updateGachaControls, updateMachineInfo, showBuyStoneModal, hideBuyStoneModal, showLoading, hideLoading, showToast, updateMoonStoneUI, updateInventory, updateHistory, updateAllItemsUI } from './gachaUI.js';
 import { connectWallet } from './gachaWeb3.js';
 import { init3D, switchToSingleView, triggerGachaAnimation, handleResize } from './gachaScene.js';
 
@@ -139,17 +139,20 @@ function initialize() {
         btn.textContent = machine.name;
         btn.onclick = () => {
             playClickSound();
-            if (state.isAnimating || !state.isConnected || state.currentMachineIndex === index) return;
+            // Allow clicking to change the machine, even if not connected
+            if (state.isAnimating || state.currentMachineIndex === index) return;
             state.currentMachineIndex = index;
             switchToSingleView(index);
             updateMachineInfo();
             updateGachaControls();
+            updateAllItemsUI();
         };
         dom.gacha.machineButtons.appendChild(btn);
     });
     
     init3D();
     updateMachineInfo();
+    updateAllItemsUI();
     updateGachaControls();
     updateInventory();
     updateHistory();
